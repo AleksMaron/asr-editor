@@ -1,23 +1,52 @@
-import React, { Component, useState } from "react";
+import React, { Component } from "react";
 import { Text } from "react-native";
-import { connect, useSelector } from "react-redux";
+import { connect } from "react-redux";
+
+
+function isCurrentWord(currentTime, start, end) {
+  if ((currentTime >= start) && (currentTime <= end)) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+function confidenceColor(confidence) {
+  const confNumber = parseFloat(confidence);
+  if (confNumber >= 0.9) {
+    return {backgroundColor: "green"};
+  } else if (confNumber < 0.9 && confNumber >= 0.7) {
+    return {backgroundColor: "yellow"};
+  } else {
+    return {backgroundColor: "red"};
+  }
+
+}
 
 class Word extends Component {
-  constructor(props) {
-    super(props);
-    // this.video = document.querySelector('video');
-    this.text = this.props.block.get("text");
-    this.data = this.props.block.get("data");
-    this.start = this.data.get("start");
-    this.end = this.data.get("end");
-  }
+  text = this.props.block.get("text");
+  data = this.props.block.get("data");
+  start = this.data.get("start");
+  end = this.data.get("end");
+  confidence = this.data.get("confidence");
   
-  render() {
+  shouldComponentUpdate(nextProps) {
+    const isNextWord = isCurrentWord(nextProps.currentTime, this.start, this.end);
+    const isNowCurrentWord = isCurrentWord(this.props.currentTime, this.start, this.end);
+
+    if ((isNextWord && !isNowCurrentWord) || (isNowCurrentWord && !isNextWord)) {
+      return true;
+    }
     
-    if ((this.props.currentTime >= this.start) && (this.props.currentTime <= this.end))
+    return false;
+  }
+
+  render() {
+    if (isCurrentWord(this.props.currentTime, this.start, this.end))
     {
+      const confidenceClass = confidenceColor(this.confidence);
       return(
-        <Text>
+        <Text style={confidenceClass}>
           <b>{this.text}</b>
         </Text>
       );
@@ -26,7 +55,6 @@ class Word extends Component {
         <Text>{this.text}</Text>
       );
     }
-    
   }
 }
 
@@ -36,15 +64,5 @@ function mapStateToProps(state) {
     currentTime
   };
 }
+
 export default connect(mapStateToProps)(Word);
-
-
-
-// function Word(props) {
-
-//   return(
-//     <Text>{props.children}</Text>
-//   );
-// }
-
-// export default Word;

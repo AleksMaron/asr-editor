@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import getData from "./textSlice";
 import {
     Editor,
@@ -7,12 +7,11 @@ import {
     convertFromRaw,
     DefaultDraftBlockRenderMap,
 } from 'draft-js';
+import 'draft-js/dist/Draft.css';
 import { nanoid } from 'nanoid'
 
-import 'draft-js/dist/Draft.css';
 import Word from "./Word";
 import WordBox from "./WordBox";
-import './TextEditor.css';
 
 function handleKeyCommand (command, editorState) {
     const newState = RichUtils.handleKeyCommand(editorState, command);
@@ -24,8 +23,6 @@ function handleKeyCommand (command, editorState) {
 
     return 'not-handled';
 }
-
-
 
 function getRawContentFromData(data) {
     let blocks = [];
@@ -55,6 +52,7 @@ function getRawContentFromData(data) {
                 type: 'Word',
                 key: `${word.start + word.end}`,
                 data: {
+                    confidence: word.confidence,
                     start: word.start,
                     end: word.end
                 }
@@ -76,18 +74,7 @@ function getRawContentFromData(data) {
       };
 }
 
-function myBlockStyleFn(contentBlock) {
-    return 'public-DraftStyleDefault-block';
-}
-const { Map } = require('immutable');
-const blockRenderMap = Map({
-    'Word': {
-      element: 'WordBox',
-      wrapper: <WordBox />
-    }
-  });
 
-const extendedBlockRenderMap = DefaultDraftBlockRenderMap.merge(blockRenderMap);
 
 function TextEditor() {
     const data = getData();    
@@ -95,23 +82,27 @@ function TextEditor() {
     const rawContent = getRawContentFromData(data);
     const blocks = convertFromRaw(rawContent);
     
+    const { Map } = require('immutable');
+    const blockRenderMap = Map({
+        'Word': {
+            element: 'WordBox',
+            wrapper: <WordBox />
+        }
+    });
+
+    const extendedBlockRenderMap = DefaultDraftBlockRenderMap.merge(blockRenderMap);
+    
     const [editorState, setEditorState] = React.useState(
       () => EditorState.createWithContent(blocks)
     );
 
     function myBlockRenderer(contentBlock) {
       const type = contentBlock.getType();
-      const data = contentBlock.getData();
-      const start = data.get("start");
-      const end = data.get("end");
+      
       if (type === 'Word') {
         return {
           component: Word,
           editable: true,
-          props: {
-            start: start,
-            end: end
-          },
         };
       }
     }
@@ -124,7 +115,6 @@ function TextEditor() {
                 onChange={setEditorState}
                 blockRenderMap={extendedBlockRenderMap}
                 blockRendererFn={myBlockRenderer}
-                blockStyleFn={myBlockStyleFn}
             />
         </div>
     )

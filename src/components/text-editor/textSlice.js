@@ -1,3 +1,9 @@
+const initialData = getData();
+
+const initialState = {
+  data: initialData
+}
+
 
 
 export default function getData() {
@@ -29,9 +35,7 @@ export default function getData() {
 
   return data;
 }
+// export const { textChanged } = textSlice.actions;
 
-const initialData = getData();
+// export default textSlice.reducer;
 
-const initialState = {
-  data: initialData
-}
