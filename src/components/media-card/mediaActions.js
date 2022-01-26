@@ -1,6 +1,8 @@
+import { updateCurrentTimeType } from "./mediaReducer";
+
 export function updateCurrentTime(currentTime) {
   return {
-    type: "UPDATE_CURRENT_TIME",
+    type: updateCurrentTimeType,
     payload: currentTime
   }
 }

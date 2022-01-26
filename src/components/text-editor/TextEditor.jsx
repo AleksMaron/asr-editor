@@ -1,104 +1,57 @@
 import React from "react";
-import getData from "./textSlice";
+import { useSelector } from "react-redux";
+import { Map } from 'immutable';
+
 import {
     Editor,
     EditorState,
     RichUtils,
     convertFromRaw,
     DefaultDraftBlockRenderMap,
+    convertToRaw,
 } from 'draft-js';
 import 'draft-js/dist/Draft.css';
-import { nanoid } from 'nanoid'
 
 import Word from "./Word";
-import WordBox from "./WordBox";
+import "./TextEditor.css";
 
-function handleKeyCommand (command, editorState) {
-    const newState = RichUtils.handleKeyCommand(editorState, command);
+import { textUpdated } from "./textActions";
+import { useDispatch } from "react-redux";
+
+
+function handleKeyCommand (command, editorState, onChange) {
+    const newState = RichUtils.handleKeyCommand(editorState, command); //changed
 
     if (newState) {
-      this.onChange(newState);
+      onChange(newState);
       return 'handled';
     }
 
     return 'not-handled';
 }
 
-function getRawContentFromData(data) {
-    let blocks = [];
-    const entityMap = {
-        word: {
-            type: 'Word',
-            mutability: 'IMMUTABLE',
-        }
-    }
-
-    data.forEach((word, index) => {
-        //Adding spaces
-        if (index < data.size - 1) {
-            const next = data.get(index + 1);
-            if (next.type !== "punctuation") {
-                word.orth = `${word.orth} `;
-            } else {
-                word.orth = `${word.orth}`;
-            }
-        } else {
-            word.orth = `${word.orth}`;
-        }
-        
-        if (word.type !== "punctuation") {
-            blocks.push({
-                text: word.orth,
-                type: 'Word',
-                key: `${word.start + word.end}`,
-                data: {
-                    confidence: word.confidence,
-                    start: word.start,
-                    end: word.end
-                }
-            });
-        } else {
-            blocks.push({
-                text: word.orth,
-                type: 'Word',
-                key: nanoid(),
-            });
-        }
-        //Adding the word to the blocks
-        
-    });
-
-    return {
-        blocks,
-        entityMap
-      };
-}
-
-
-
 function TextEditor() {
-    const data = getData();    
-    //Add spaces and construct words string
-    const rawContent = getRawContentFromData(data);
-    const blocks = convertFromRaw(rawContent);
-    
-    const { Map } = require('immutable');
-    const blockRenderMap = Map({
+    const dispatch = useDispatch();
+    const dataFromStore = useSelector(state => state.text.rawContentData);
+    const blocks = convertFromRaw(dataFromStore);
+
+    //Customizing wrapper for ContentBlock rendering
+    const blockRenderMap = new Map({
         'Word': {
-            element: 'WordBox',
-            wrapper: <WordBox />
+            element: 'span',
         }
     });
-
     const extendedBlockRenderMap = DefaultDraftBlockRenderMap.merge(blockRenderMap);
     
+    //Setting the internal state with editor
     const [editorState, setEditorState] = React.useState(
       () => EditorState.createWithContent(blocks)
     );
-
+    
+    //Customizing element for rendering ContentBlock
     function myBlockRenderer(contentBlock) {
       const type = contentBlock.getType();
-      
+
       if (type === 'Word') {
         return {
           component: Word,
@@ -107,18 +60,25 @@ function TextEditor() {
       }
     }
 
+    function onChange(editorState) {
+        setEditorState(editorState);
+        const contentBlock = editorState.getCurrentContent();
+        const rowContentData = convertToRaw(contentBlock);
+        dispatch(textUpdated(rowContentData));
+    }
+
     return (
-        <div className="draft-editor-wrapper">
+        <div className="draft-editor-wrapper textEditor">
             <Editor 
                 editorState={editorState}
-                handleKeyCommand={handleKeyCommand}
-                onChange={setEditorState}
+                handleKeyCommand={(cmd, es) => handleKeyCommand(cmd, es, onChange)}
+                onChange={onChange}
                 blockRenderMap={extendedBlockRenderMap}
                 blockRendererFn={myBlockRenderer}
             />
         </div>
     )
-  }
+}
 
   
 

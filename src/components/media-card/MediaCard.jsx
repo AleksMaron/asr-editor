@@ -52,8 +52,8 @@ class MediaCard extends Component {
 
 // Connecting the conponent to the redux state
 function mapStateToProps(state) {
-  const source = state.media.source;
-  const currentTime = state.media.currentTime;
+  const source = state.media.get('source');
+  const currentTime = state.media.get('currentTime');
   return {
     source,
     currentTime

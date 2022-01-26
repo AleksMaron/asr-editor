@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import { Text } from "react-native";
 import { connect } from "react-redux";
 
-
 function isCurrentWord(currentTime, start, end) {
   if ((currentTime >= start) && (currentTime <= end)) {
     return true;
@@ -33,8 +32,13 @@ class Word extends Component {
   shouldComponentUpdate(nextProps) {
     const isNextWord = isCurrentWord(nextProps.currentTime, this.start, this.end);
     const isNowCurrentWord = isCurrentWord(this.props.currentTime, this.start, this.end);
+    const newText = nextProps.block.get("text");
 
     if ((isNextWord && !isNowCurrentWord) || (isNowCurrentWord && !isNextWord)) {
+      return true;
+    }
+
+    if (this.text !== newText) {
       return true;
     }
     
@@ -59,7 +63,7 @@ class Word extends Component {
 }
 
 function mapStateToProps(state) {
-  const currentTime = state.media.currentTime;
+  const currentTime = state.media.get('currentTime');
   return {
     currentTime
   };
