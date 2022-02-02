@@ -18,6 +18,8 @@ import { updateCurrentTime } from "./mediaActions";
 class MediaCard extends Component {
   
   componentDidMount() {
+    //Inject currentTime from localStorege to the Player
+    this.player.seek(this.props.currentTime);
     // subscribe for player state change
     this.player.subscribeToStateChange(this.dispatchCurrentTime.bind(this))
   }
@@ -30,6 +32,15 @@ class MediaCard extends Component {
       this.props.updateCurrentTime(player.currentTime);
     }
   }
+
+  // shouldComponentUpdate(nextProps) {
+  //   if (nextProps.currentTime !== this.props.currentTime) {
+  //     this.player.seek(this.props.currentTime);
+  //     return false;
+  //   }
+
+  //   return true;
+  // }
 
   render() {
     return(
@@ -52,8 +63,8 @@ class MediaCard extends Component {
 
 // Connecting the conponent to the redux state
 function mapStateToProps(state) {
-  const source = state.media.get('source');
-  const currentTime = state.media.get('currentTime');
+  const source = state.media.source;
+  const currentTime = state.media.currentTime;
   return {
     source,
     currentTime

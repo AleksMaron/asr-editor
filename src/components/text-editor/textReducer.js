@@ -1,5 +1,4 @@
-import { nanoid } from 'nanoid'
-import { List, fromJS } from 'immutable';
+import { List } from 'immutable';
 
 const initialData = getData();
 const rawContentData = getRawContentFromData(initialData);
@@ -15,10 +14,9 @@ const initialState = {
 const textReducer = (state = initialState, action) => {
   switch(action.type) {
     case textUpdatedType:
-      // return state.setIn(['rawContentData'], action.payload)
       return {
         ...state,
-        rowContentData: action.payload 
+        rawContentData: action.payload 
       };
     default:
       return state;
@@ -40,7 +38,7 @@ function getData() {
     } else {
       for (let word of subtitle.traceback.item) {
         if(word['@type'] !== "punctuation") {
-          data = data.push({ //from js
+          data = data.push({
             confidence: word.confidence,
             type: word['@type'],
             orth: word.orth,
@@ -48,7 +46,7 @@ function getData() {
             end: word.samples['@end']
           });
         } else {
-          data = data.push({ //from js
+          data = data.push({
             orth: word.orth,
             type: word['@type'],
           });
@@ -68,40 +66,35 @@ function getRawContentFromData(data) {
       }
   }
 
-  data.forEach((word, index) => {
-      //Adding spaces
-      if (index < data.size - 1) {
-          const next = data.get(index + 1);
-          if (next.type !== "punctuation") {
-              word.orth = `${word.orth} `;
-          } else {
-              word.orth = `${word.orth}`;
-          }
-      } else {
-          word.orth = `${word.orth}`;
+  for (const [index, word] of data.entries()) {
+    //Adding spaces
+    if (word.type === "punctuation") {
+      continue;
+    }
+
+    if (index < data.size - 1) {
+        const next = data.get(index + 1);
+        if (next.type !== "punctuation") {
+            word.orth = `${word.orth} `;
+        } else {
+            word.orth = `${word.orth + next.orth} `;
+        }
+    } else {
+        word.orth = `${word.orth}`;
+    }
+    
+    blocks.push({
+      text: word.orth,
+      type: 'Word',
+      key: `${word.start}`,
+      data: {
+          confidence: word.confidence,
+          start: word.start,
+          end: word.end
       }
-      
-      if (word.type !== "punctuation") {
-          blocks.push({ //fromJS
-              text: word.orth,
-              type: 'Word',
-              key: `${word.start}`,
-              data: {
-                  confidence: word.confidence,
-                  start: word.start,
-                  end: word.end
-              }
-          });
-      } else {
-          blocks.push({//fromJS
-              text: word.orth,
-              type: 'Word',
-              key: nanoid(),
-          });
-      }
-      //Adding the word to the blocks
-      
-  });
+    });
+    
+  };
 
   return {
       blocks,

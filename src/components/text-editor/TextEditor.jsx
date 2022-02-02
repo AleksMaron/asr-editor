@@ -1,6 +1,7 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import { Map } from 'immutable';
+import { connect } from "react-redux";
 
 import {
     Editor,
@@ -9,11 +10,13 @@ import {
     convertFromRaw,
     DefaultDraftBlockRenderMap,
     convertToRaw,
+    CompositeDecorator
 } from 'draft-js';
 import 'draft-js/dist/Draft.css';
 
 import Word from "./Word";
 import "./TextEditor.css";
+import { highlightWord } from "./highlightWord";
 
 import { textUpdated } from "./textActions";
 import { useDispatch } from "react-redux";
@@ -30,25 +33,39 @@ function handleKeyCommand (command, editorState, onChange) {
     return 'not-handled';
 }
 
-function TextEditor() {
+function TextEditor({currentTime}) {
     const dispatch = useDispatch();
     const dataFromStore = useSelector(state => state.text.rawContentData);
     const blocks = convertFromRaw(dataFromStore);
 
-    //Customizing wrapper for ContentBlock rendering
+    // Customizing wrapper for ContentBlock rendering
     const blockRenderMap = new Map({
         'Word': {
             element: 'span',
         }
     });
     const extendedBlockRenderMap = DefaultDraftBlockRenderMap.merge(blockRenderMap);
+
+    //Highlighting decorator
+    const decorator = new CompositeDecorator([
+      {
+        strategy: highlightWord,
+        // component: HighlightedWord,
+        component: Word,
+      }
+    ]);
     
     //Setting the internal state with editor
     const [editorState, setEditorState] = React.useState(
-      () => EditorState.createWithContent(blocks)
+      () => EditorState.createWithContent(blocks, decorator)
     );
+
+    //Displaying EditorBlock inline
+    function myBlockStyleFn(contentBlock) {
+      return 'public-DraftStyleDefault-block';
+    }
     
-    //Customizing element for rendering ContentBlock
+    // Customizing element for rendering ContentBlock
     function myBlockRenderer(contentBlock) {
       const type = contentBlock.getType();
 
@@ -75,6 +92,7 @@ function TextEditor() {
                 onChange={onChange}
                 blockRenderMap={extendedBlockRenderMap}
                 blockRendererFn={myBlockRenderer}
+                blockStyleFn={myBlockStyleFn}
             />
         </div>
     )
@@ -82,6 +100,10 @@ function TextEditor() {
 
   
 
-export default TextEditor;
+// export default TextEditor;
 
+function mapStateToProps(state) {
+  return { currentTime: state.media.currentTime };
+} 
 
+export default connect(mapStateToProps)(TextEditor);

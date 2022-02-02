@@ -1,3 +1,12 @@
 .textEditor {
   padding: 10px;
 }
+
+.word {
+  display: inline;
+}
+
+.public-DraftStyleDefault-block > div {
+  display: inline;
+  font-size: larger;
+}
