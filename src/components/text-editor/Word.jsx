@@ -1,10 +1,9 @@
 import React, { Component } from "react";
-import { Text } from "react-native";
 import { connect } from "react-redux";
 
-import { EditorBlock } from "draft-js";
+import { EditorBlock, CharacterMetadata } from "draft-js";
 
-import { updateCurrentTime } from "../media-card/mediaActions";
+import { wordClicked } from "../media-card/mediaActions";
 import "./TextEditor.css";
 
 function isCurrentWord(currentTime, start, end) {
@@ -15,35 +14,32 @@ function isCurrentWord(currentTime, start, end) {
   }
 }
 
-function confidenceColor(confidence) {
+function getStyle(confidence) {
   const confNumber = parseFloat(confidence);
   if (confNumber >= 0.9) {
-    return {backgroundColor: "green"};
+    return "HIGH_CONF";
   } else if (confNumber < 0.9 && confNumber >= 0.7) {
-    return {backgroundColor: "yellow"};
+    return "MEDIUM_CONF";
   } else {
-    return {backgroundColor: "red"};
+    return "LOW_CONF";
   }
-
 }
 
 class Word extends Component {
   constructor(props) {
     super(props);
-
+    const { block } = this.props;
+    const data = block.getData();
+    this.block = block;
+    this.start = data.get("start");
+    this.end = data.get("end");
     this.onClick = this.onClick.bind(this);
   }
 
-  
   shouldComponentUpdate(nextProps) {
-    const { block } = this.props;
-    const data = block.getData();
-    const start = data.get("start");
-    const end = data.get("end");
-    const text = block.getText(); 
-
-    const isNextWord = isCurrentWord(nextProps.currentTime, start, end);
-    const isNowCurrentWord = isCurrentWord(this.props.currentTime, start, end);
+    const text = this.block.getText(); 
+    const isNextWord = isCurrentWord(nextProps.currentTime, this.start, this.end);
+    const isNowCurrentWord = isCurrentWord(this.props.currentTime, this.start, this.end);
     const newText = nextProps.block.getText();
 
     if ((isNextWord && !isNowCurrentWord) || 
@@ -55,32 +51,37 @@ class Word extends Component {
     return false;
   }
 
-  onClick() {
-    const { block } = this.props;
-    const start = block.getData().get("start");
-    this.props.updateCurrentTime(start);
+  onClick = (e) => {
+    this.props.wordClicked(this.start);    
   }
 
   render() {
-    const { block, contentState } = this.props;
-    const text = block.getText(); 
+    let { block } = this.props;
     const data = block.getData();
     const start = data.get("start");
     const end = data.get("end");
-    const confidence = data.get("confidence");
 
-    if (isCurrentWord(this.props.currentTime, start, end))
-    {
-      const confidenceClass = confidenceColor(confidence);
+    if (isCurrentWord(this.props.currentTime, start, end)) {
+      const confidence = data.get("confidence");
+      let characterList = block.getCharacterList();
+      const confStyle = getStyle(confidence);
+
+      for (let i = 0; i < characterList.size; i++) {
+        let metadata = characterList.get(i);
+        metadata = CharacterMetadata.applyStyle(metadata, confStyle);
+        characterList = characterList.set(i, metadata);
+      }
+      block = block.set('characterList', characterList);
+      const propsWithNewBlock = {...this.props, block: block};
+
       return(
-        <Text style={confidenceClass}>
-          <b>{text}</b>
-        </Text>
+        <EditorBlock {...propsWithNewBlock} />
       );
     } else {
       return(
-        // <EditorBlock {...this.props} />
-        <Text onClick={this.onClick}> {text} </Text>
+        <span onClick={this.onClick}>
+          <EditorBlock {...this.props} />
+        </span>
       );
     }
   }
@@ -93,4 +94,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, {updateCurrentTime})(Word);
+export default connect(mapStateToProps, {wordClicked})(Word);

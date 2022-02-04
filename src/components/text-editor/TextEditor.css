@@ -1,5 +1,7 @@
 .textEditor {
-  padding: 10px;
+  padding: 20px;
+  overflow-y: scroll;
+  font-size: larger;
 }
 
 .word {
@@ -9,4 +11,19 @@
 .public-DraftStyleDefault-block > div {
   display: inline;
   font-size: larger;
+}
+
+.public-DraftStyleDefault-block {
+  display: inline;
+  font-size: larger;
+  line-height: 200%;
+}
+
+.highlightWord {
+  font-weight: bold;
+}
+
+div.public-DraftEditor-content {
+  height: 90vh;
+  text-align: justify;
 }

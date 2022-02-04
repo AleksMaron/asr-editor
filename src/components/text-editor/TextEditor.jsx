@@ -1,7 +1,6 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import { Map } from 'immutable';
-import { connect } from "react-redux";
 
 import {
     Editor,
@@ -9,31 +8,20 @@ import {
     RichUtils,
     convertFromRaw,
     DefaultDraftBlockRenderMap,
-    convertToRaw,
-    CompositeDecorator
+    convertToRaw
 } from 'draft-js';
 import 'draft-js/dist/Draft.css';
 
 import Word from "./Word";
 import "./TextEditor.css";
-import { highlightWord } from "./highlightWord";
 
 import { textUpdated } from "./textActions";
 import { useDispatch } from "react-redux";
 
 
-function handleKeyCommand (command, editorState, onChange) {
-    const newState = RichUtils.handleKeyCommand(editorState, command); //changed
 
-    if (newState) {
-      onChange(newState);
-      return 'handled';
-    }
 
-    return 'not-handled';
-}
-
-function TextEditor({currentTime}) {
+function TextEditor() {
     const dispatch = useDispatch();
     const dataFromStore = useSelector(state => state.text.rawContentData);
     const blocks = convertFromRaw(dataFromStore);
@@ -46,18 +34,25 @@ function TextEditor({currentTime}) {
     });
     const extendedBlockRenderMap = DefaultDraftBlockRenderMap.merge(blockRenderMap);
 
-    //Highlighting decorator
-    const decorator = new CompositeDecorator([
-      {
-        strategy: highlightWord,
-        // component: HighlightedWord,
-        component: Word,
-      }
-    ]);
+    //Highlighting styles
+    const styleMap = {
+      "HIGH_CONF": {
+        fontWeight: "bold",
+        color: "#7FFF00",
+      },
+      "MEDIUM_CONF": {
+        fontWeight: "bold",
+        color: "orange",
+      },
+      "LOW_CONF": {
+        fontWeight: "bold",
+        color: "red",
+      },
+    };
     
     //Setting the internal state with editor
     const [editorState, setEditorState] = React.useState(
-      () => EditorState.createWithContent(blocks, decorator)
+      () => EditorState.createWithContent(blocks)
     );
 
     //Displaying EditorBlock inline
@@ -77,6 +72,17 @@ function TextEditor({currentTime}) {
       }
     }
 
+    function handleKeyCommand (command, editorState, onChange) {
+      const newState = RichUtils.handleKeyCommand(editorState, command); //changed
+  
+      if (newState) {
+        onChange(newState);
+        return 'handled';
+      }
+  
+      return 'not-handled';
+    }
+
     function onChange(editorState) {
         setEditorState(editorState);
         const contentBlock = editorState.getCurrentContent();
@@ -84,8 +90,12 @@ function TextEditor({currentTime}) {
         dispatch(textUpdated(rowContentData));
     }
 
+    function onClick(event) {
+      return
+    }
+
     return (
-        <div className="draft-editor-wrapper textEditor">
+        <div className="draft-editor-wrapper textEditor" onClick={onClick}>
             <Editor 
                 editorState={editorState}
                 handleKeyCommand={(cmd, es) => handleKeyCommand(cmd, es, onChange)}
@@ -93,17 +103,10 @@ function TextEditor({currentTime}) {
                 blockRenderMap={extendedBlockRenderMap}
                 blockRendererFn={myBlockRenderer}
                 blockStyleFn={myBlockStyleFn}
+                customStyleMap={styleMap}
             />
         </div>
     )
 }
 
-  
-
-// export default TextEditor;
-
-function mapStateToProps(state) {
-  return { currentTime: state.media.currentTime };
-} 
-
-export default connect(mapStateToProps)(TextEditor);
+export default TextEditor;

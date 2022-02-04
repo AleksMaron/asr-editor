@@ -13,12 +13,12 @@ import {
   } from 'video-react';
 import "../../../node_modules/video-react/dist/video-react.css";
 
-import { updateCurrentTime } from "./mediaActions";
+import { updateCurrentTime, wordClicked } from "./mediaActions";
 
 class MediaCard extends Component {
   
   componentDidMount() {
-    //Inject currentTime from localStorege to the Player
+    //Inject currentTime from localStorage to the Player
     this.player.seek(this.props.currentTime);
     // subscribe for player state change
     this.player.subscribeToStateChange(this.dispatchCurrentTime.bind(this))
@@ -29,18 +29,19 @@ class MediaCard extends Component {
     const { player } = this.player.getState();
 
     if (player.currentTime !== this.props.currentTime) {
-      this.props.updateCurrentTime(player.currentTime);
+      this.props.updateCurrentTime(player.currentTime + 0.01);
     }
   }
 
-  // shouldComponentUpdate(nextProps) {
-  //   if (nextProps.currentTime !== this.props.currentTime) {
-  //     this.player.seek(this.props.currentTime);
-  //     return false;
-  //   }
+  shouldComponentUpdate(nextProps) {
+    if (nextProps.wordClickedTime !== 0) {
+      this.player.seek(parseFloat(nextProps.wordClickedTime));
+      this.props.wordClicked(0);
+      return false;
+    }
 
-  //   return true;
-  // }
+    return true;
+  }
 
   render() {
     return(
@@ -65,10 +66,13 @@ class MediaCard extends Component {
 function mapStateToProps(state) {
   const source = state.media.source;
   const currentTime = state.media.currentTime;
+  const wordClickedTime = state.media.wordClickedTime;
+
   return {
     source,
-    currentTime
+    currentTime,
+    wordClickedTime
   };
 }
 
-export default connect(mapStateToProps, {updateCurrentTime})(MediaCard);
+export default connect(mapStateToProps, {updateCurrentTime, wordClicked})(MediaCard);
