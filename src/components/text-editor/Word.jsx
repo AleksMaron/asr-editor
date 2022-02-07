@@ -29,15 +29,15 @@ class Word extends Component {
   constructor(props) {
     super(props);
     const { block } = this.props;
-    const data = block.getData();
-    this.block = block;
-    this.start = data.get("start");
-    this.end = data.get("end");
+    this.data = block.getData();
+    this.start = this.data.get("start");
+    this.end = this.data.get("end");
     this.onClick = this.onClick.bind(this);
   }
 
   shouldComponentUpdate(nextProps) {
-    const text = this.block.getText(); 
+    const { block } = this.props;
+    const text = block.getText(); 
     const isNextWord = isCurrentWord(nextProps.currentTime, this.start, this.end);
     const isNowCurrentWord = isCurrentWord(this.props.currentTime, this.start, this.end);
     const newText = nextProps.block.getText();
@@ -57,12 +57,9 @@ class Word extends Component {
 
   render() {
     let { block } = this.props;
-    const data = block.getData();
-    const start = data.get("start");
-    const end = data.get("end");
 
-    if (isCurrentWord(this.props.currentTime, start, end)) {
-      const confidence = data.get("confidence");
+    if (isCurrentWord(this.props.currentTime, this.start, this.end)) {
+      const confidence = this.data.get("confidence");
       let characterList = block.getCharacterList();
       const confStyle = getStyle(confidence);
 
@@ -75,7 +72,9 @@ class Word extends Component {
       const propsWithNewBlock = {...this.props, block: block};
 
       return(
-        <EditorBlock {...propsWithNewBlock} />
+        <span>
+          <EditorBlock {...propsWithNewBlock} />
+        </span>
       );
     } else {
       return(

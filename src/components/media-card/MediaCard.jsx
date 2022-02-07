@@ -15,6 +15,8 @@ import "../../../node_modules/video-react/dist/video-react.css";
 
 import { updateCurrentTime, wordClicked } from "./mediaActions";
 
+const compensationTime = 0.01;
+
 class MediaCard extends Component {
   
   componentDidMount() {
@@ -28,8 +30,8 @@ class MediaCard extends Component {
     // update currentTime of the global state from player state
     const { player } = this.player.getState();
 
-    if (player.currentTime !== this.props.currentTime) {
-      this.props.updateCurrentTime(player.currentTime + 0.01);
+    if ((player.currentTime + compensationTime) !== this.props.currentTime) {
+      this.props.updateCurrentTime(player.currentTime + compensationTime);
     }
   }
 

@@ -23,7 +23,9 @@ import { useDispatch } from "react-redux";
 
 function TextEditor() {
     const dispatch = useDispatch();
-    const dataFromStore = useSelector(state => state.text.rawContentData);
+    const dataFromStore = useSelector(state => {
+      return state.text.rawContentData;
+    });
     const blocks = convertFromRaw(dataFromStore);
 
     // Customizing wrapper for ContentBlock rendering
@@ -86,8 +88,8 @@ function TextEditor() {
     function onChange(editorState) {
         setEditorState(editorState);
         const contentBlock = editorState.getCurrentContent();
-        const rowContentData = convertToRaw(contentBlock);
-        dispatch(textUpdated(rowContentData));
+        const rawContentData = convertToRaw(contentBlock);
+        dispatch(textUpdated(rawContentData));
     }
 
     function onClick(event) {

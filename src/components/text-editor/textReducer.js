@@ -3,17 +3,13 @@ import { List } from 'immutable';
 const initialData = getData();
 const rawContentData = getRawContentFromData(initialData);
 
-// const initialState = fromJS({
-//   rawContentData: rawContentData
-// });
-
 const initialState = {
   rawContentData: rawContentData
 };
 
 const textReducer = (state = initialState, action) => {
   switch(action.type) {
-    case textUpdatedType:
+    case textUpdatedAsyncType:
       return {
         ...state,
         rawContentData: action.payload 
@@ -103,6 +99,7 @@ function getRawContentFromData(data) {
 }
 
 export const textUpdatedType = "TEXT_UPDATED";
+export const textUpdatedAsyncType = "TEXT_UPDATED_ASYNC";
 export default textReducer;
 
 
