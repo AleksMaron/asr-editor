@@ -9,13 +9,14 @@ import {
     CurrentTimeDisplay,
     TimeDivider,
     PlaybackRateMenuButton,
-    VolumeMenuButton
+    VolumeMenuButton,
+    BigPlayButton
   } from 'video-react';
 import "../../../node_modules/video-react/dist/video-react.css";
 
 import { updateCurrentTime, wordClicked } from "./mediaActions";
 
-const compensationTime = 0.01;
+const compensationTime = 0.1;
 
 class MediaCard extends Component {
   
@@ -29,16 +30,35 @@ class MediaCard extends Component {
   dispatchCurrentTime = () => {
     // update currentTime of the global state from player state
     const { player } = this.player.getState();
+    const currentTimeCompensated = player.currentTime + compensationTime;
+    let currentWord;
 
-    if ((player.currentTime + compensationTime) !== this.props.currentTime) {
-      this.props.updateCurrentTime(player.currentTime + compensationTime);
+    for (let word of this.props.timecodes) {
+      if((currentTimeCompensated >= parseFloat(word.start)) && (currentTimeCompensated < parseFloat(word.end))) {
+        currentWord = word.start;
+        break;
+      }
+    }
+
+    if (currentWord && (currentWord !== this.props.currentTime)) {
+      this.props.updateCurrentTime(currentWord);
     }
   }
 
   shouldComponentUpdate(nextProps) {
-    if (nextProps.wordClickedTime !== 0) {
+    if (nextProps.playOrPause !== this.props.playOrPause) {
+      if (nextProps.playOrPause) {
+        this.player.actions.play();
+      } else {
+        this.player.actions.pause();
+      }
+
+      return false;
+    }
+
+    if (nextProps.wordClickedTime !== this.props.wordClickedTime) {
       this.player.seek(parseFloat(nextProps.wordClickedTime));
-      this.props.wordClicked(0);
+      // this.props.wordClicked(false);
       return false;
     }
 
@@ -51,6 +71,7 @@ class MediaCard extends Component {
       ref={player => {this.player = player}}
       src={this.props.source}
       >
+        <BigPlayButton position="center" />
         <ControlBar>
           <ReplayControl seconds={10} order={1.1} />
           <ForwardControl seconds={30} order={1.2} />
@@ -66,14 +87,12 @@ class MediaCard extends Component {
 
 // Connecting the conponent to the redux state
 function mapStateToProps(state) {
-  const source = state.media.source;
-  const currentTime = state.media.currentTime;
-  const wordClickedTime = state.media.wordClickedTime;
-
   return {
-    source,
-    currentTime,
-    wordClickedTime
+    source: state.media.source,
+    currentTime: state.media.currentTime,
+    wordClickedTime: state.media.wordClickedTime,
+    timecodes: state.text.timecodes,
+    playOrPause: state.media.playOrPause
   };
 }
 

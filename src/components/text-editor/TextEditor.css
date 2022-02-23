@@ -2,6 +2,7 @@
   padding: 20px;
   overflow-y: scroll;
   font-size: larger;
+  text-align: center;
 }
 
 .word {
@@ -25,5 +26,5 @@
 
 div.public-DraftEditor-content {
   height: 90vh;
-  text-align: justify;
+  text-align: center;
 }

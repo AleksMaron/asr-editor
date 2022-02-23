@@ -24,7 +24,7 @@ const store = configureStore({
     serializableCheck: { ignoredPaths: ['text.rawContentData'] }
   }).concat(sagaMiddleware),
 
-  preloadedState: persistedState
+  // preloadedState: persistedState
 });
 
 sagaMiddleware.run(watchTextUpdated);

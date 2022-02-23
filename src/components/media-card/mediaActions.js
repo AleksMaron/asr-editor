@@ -1,4 +1,4 @@
-import { updateCurrentTimeType, wordClickedType } from "./mediaReducer";
+import { updateCurrentTimeType, wordClickedType, playOrPauseType } from "./mediaReducer";
 
 export function updateCurrentTime(currentTime) {
   return {
@@ -11,5 +11,11 @@ export function wordClicked(wordClickedTime) {
   return {
     type: wordClickedType,
     payload: wordClickedTime
+  }
+}
+
+export function playOrPause() {
+  return {
+    type: playOrPauseType,
   }
 }

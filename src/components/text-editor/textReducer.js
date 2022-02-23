@@ -1,10 +1,12 @@
-import { List } from 'immutable';
+import getData, { divideDataToSubtitles } from './prepareTextFromJSON';
 
 const initialData = getData();
-const rawContentData = getRawContentFromData(initialData);
+const subtitles = divideDataToSubtitles(initialData.data);
+const rawContentData = getRawContentFromData(subtitles);
 
 const initialState = {
-  rawContentData: rawContentData
+  rawContentData: rawContentData,
+  timecodes: initialData.timecodes
 };
 
 const textReducer = (state = initialState, action) => {
@@ -12,49 +14,45 @@ const textReducer = (state = initialState, action) => {
     case textUpdatedAsyncType:
       return {
         ...state,
-        rawContentData: action.payload 
+        rawContentData: action.payload
       };
+    case wordsJoinedType:
+      let newTimecodes = [];
+
+      for (let [index, word] of state.timecodes.entries()) {
+        if (word.start === action.payload.secondWordKey) {
+          continue;
+        }
+
+        if (word.start === action.payload.firstWordKey) {
+          const next = state.timecodes[index + 1];
+          if (next) {
+            newTimecodes.push({
+              start: word.start,
+              end: next.end
+            });
+          }
+        } else {
+          newTimecodes.push({
+            start: word.start,
+            end: word.end
+          });
+        }
+      }
+
+      return {
+        ...state,
+        timecodes: newTimecodes
+      }
     default:
       return state;
   }
 }
 
-function getData() {
-  const rawData = require('./Amyloidosis Awareness.MP4.json');
-  let data = new List();
-  for (let subtitle of rawData.recording.segment) {
-    if (subtitle.traceback.item['@type']) {
-      data = data.push({ //from js
-        confidence: subtitle.traceback.item.confidence,
-        type: subtitle.traceback.item['@type'],
-        orth: subtitle.traceback.item.orth,
-        start: subtitle.traceback.item.samples['@start'],
-        end: subtitle.traceback.item.samples['@end']
-      });
-    } else {
-      for (let word of subtitle.traceback.item) {
-        if(word['@type'] !== "punctuation") {
-          data = data.push({
-            confidence: word.confidence,
-            type: word['@type'],
-            orth: word.orth,
-            start: word.samples['@start'],
-            end: word.samples['@end']
-          });
-        } else {
-          data = data.push({
-            orth: word.orth,
-            type: word['@type'],
-          });
-        }
-      }
-    }
-  }
-  return data;
-}
 
 function getRawContentFromData(data) {
   let blocks = [];
+
   const entityMap = {
       word: {
           type: 'Word',
@@ -62,35 +60,16 @@ function getRawContentFromData(data) {
       }
   }
 
-  for (const [index, word] of data.entries()) {
-    //Adding spaces
-    if (word.type === "punctuation") {
-      continue;
-    }
-
-    if (index < data.size - 1) {
-        const next = data.get(index + 1);
-        if (next.type !== "punctuation") {
-            word.orth = `${word.orth} `;
-        } else {
-            word.orth = `${word.orth + next.orth} `;
-        }
-    } else {
-        word.orth = `${word.orth}`;
-    }
-    
+  for (const word of data) {
     blocks.push({
       text: word.orth,
       type: 'Word',
       key: `${word.start}`,
       data: {
           confidence: word.confidence,
-          start: word.start,
-          end: word.end
       }
     });
-    
-  };
+  }
 
   return {
       blocks,
@@ -100,6 +79,7 @@ function getRawContentFromData(data) {
 
 export const textUpdatedType = "TEXT_UPDATED";
 export const textUpdatedAsyncType = "TEXT_UPDATED_ASYNC";
+export const wordsJoinedType = "WORDS_JOINED";
 export default textReducer;
 
 
