@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector, connect } from "react-redux";
 
 
@@ -22,7 +22,6 @@ import { textUpdated, wordsJoined } from "./textActions";
 import { useDispatch } from "react-redux";
 
 import colorByConfidence from "./colorByConfidence";
-import { useCallback } from "react";
 
 function TextEditor(props) {
     const dispatch = useDispatch();
@@ -38,7 +37,7 @@ function TextEditor(props) {
     ]);
     
     //Setting the internal state with editor
-    const [editorState, setEditorState] = React.useState(
+    const [editorState, setEditorState] = useState(
       () => EditorState.createWithContent(blocks, compositeDecorator)
     );
 
@@ -52,42 +51,42 @@ function TextEditor(props) {
       const currentSelection = editorState.getSelection();
       const currentBlockKey = currentSelection.getAnchorKey();
       switch (command) {
-        case "backspace":
-          const currentBlockText = currentContent.getBlockForKey(currentBlockKey).getText();
+        // case "backspace":
+        //   const currentBlockText = currentContent.getBlockForKey(currentBlockKey).getText();
 
-          if (!currentSelection.isCollapsed()) {
-            const newContentState = Modifier.removeRange(currentContent, currentSelection, "forward");
-            const newEditorState = EditorState.push(editorState, newContentState);
-            setEditorState(newEditorState);
-          } else if ((currentBlockText === ' ') || (currentBlockText === '') || (currentBlockText === '\n')) {
-            const prevBlockKey = currentContent.getKeyBefore(currentBlockKey);
-            const nextBlockKey = currentContent.getKeyAfter(currentBlockKey);
-            const nextBlockText = currentContent.getBlockForKey(nextBlockKey).getText();
-            dispatch(wordsJoined(prevBlockKey, nextBlockKey));
-            const removeSelection = new SelectionState({
-              anchorKey: currentBlockKey,
-              anchorOffset: 0,
-              focusKey: nextBlockKey,
-              focusOffset: nextBlockText.length,
-              isBackward: false
-            });
+        //   if (!currentSelection.isCollapsed()) {
+        //     const newContentState = Modifier.removeRange(currentContent, currentSelection, "forward");
+        //     const newEditorState = EditorState.push(editorState, newContentState);
+        //     setEditorState(newEditorState);
+        //   } else if ((currentBlockText === ' ') || (currentBlockText === '') || (currentBlockText === '\n')) {
+        //     const prevBlockKey = currentContent.getKeyBefore(currentBlockKey);
+        //     const nextBlockKey = currentContent.getKeyAfter(currentBlockKey);
+        //     const nextBlockText = currentContent.getBlockForKey(nextBlockKey).getText();
+        //     dispatch(wordsJoined(prevBlockKey, nextBlockKey));
+        //     const removeSelection = new SelectionState({
+        //       anchorKey: currentBlockKey,
+        //       anchorOffset: 0,
+        //       focusKey: nextBlockKey,
+        //       focusOffset: nextBlockText.length,
+        //       isBackward: false
+        //     });
 
-            const newState = RichUtils.handleKeyCommand(editorState, command);
-            if (newState) {
-              onChange(newState);
-              return 'handled';
-            }
-          }
+        //     const newState = RichUtils.handleKeyCommand(editorState, command);
+        //     if (newState) {
+        //       onChange(newState);
+        //       return 'handled';
+        //     }
+        //   }
 
-          return 'handled';
+        //   return 'handled';
         case "play-pause-video":
           dispatch(playOrPause());
           return 'handled';
         case "select-previous-word":
           const keyBefore = currentContent.getKeyBefore(currentSelection.getAnchorKey());
-          const previoustWordKey = currentContent.getKeyBefore(keyBefore);
-          if (previoustWordKey) {
-            dispatch(wordClicked(previoustWordKey));
+          const previousWordKey = currentContent.getKeyBefore(keyBefore);
+          if (previousWordKey) {
+            dispatch(wordClicked(previousWordKey));
           } 
           return 'handled';
         case "select-next-word":
@@ -120,28 +119,24 @@ function TextEditor(props) {
           return getDefaultKeyBinding(e);
       }
     }
+    
+    const [currentTimeRendered, setCurrentTimeRendered] = useState(0);
 
-    const onChange = useCallback((editorState) => {
+    function onChange(editorState) {
       const currentAnchorKey = editorState.getSelection().getAnchorKey();
-      const currentBlockData = editorState.getCurrentContent().getBlockForKey(currentAnchorKey).getData();
 
-      if (currentBlockData.get("confidence")) {
-        if (currentAnchorKey !== props.currentTime) {
-            dispatch(wordClicked(currentAnchorKey));
-            return;
-        }
+      if (currentAnchorKey !== props.currentTime) {
+          dispatch(wordClicked(currentAnchorKey));
       }
 
       setEditorState(editorState);
       const contentBlock = editorState.getCurrentContent();
       const rawContentData = convertToRaw(contentBlock);
       dispatch(textUpdated(rawContentData));
-    }, [props.currentTime, dispatch]);
+    }
 
     useEffect(() => {
-      const currentAnchorKey = editorState.getSelection().getAnchorKey();
-      
-      if (props.currentTime && (currentAnchorKey !== props.currentTime)) {
+      if (props.currentTime && (currentTimeRendered !== props.currentTime)) {
         const currentContent = editorState.getCurrentContent();
         const currentBlock = currentContent.getBlockForKey(props.currentTime);
         const text = currentBlock.getText();
@@ -156,8 +151,9 @@ function TextEditor(props) {
 
         const updatedState = EditorState.forceSelection(editorState, updatedSelection);
         setEditorState(updatedState);
+        setCurrentTimeRendered(props.currentTime);
       }
-    }, [props.currentTime, editorState, setEditorState]);
+    }, [props.currentTime, editorState, setEditorState, currentTimeRendered, setCurrentTimeRendered]);
 
     return (
         <div className="draft-editor-wrapper textEditor">

@@ -2,37 +2,28 @@ import { List } from 'immutable';
 
 function getData() {
   const rawData = require('./Amyloidosis Awareness.MP4.json');
-  let timecodes = [];
   let data = new List();
 
   for (let subtitle of rawData.recording.segment) {
     if (subtitle.traceback.item['@type']) {
+      const movedStart = `${(parseFloat(subtitle.traceback.item.samples['@start']) + 0.001).toFixed(3)}`;
       data = data.push({
         confidence: subtitle.traceback.item.confidence,
         type: subtitle.traceback.item['@type'],
         orth: subtitle.traceback.item.orth,
-        start: subtitle.traceback.item.samples['@start'],
-        end: subtitle.traceback.item.samples['@end']
-      });
-
-      timecodes.push({
-        start: subtitle.traceback.item.samples['@start'],
+        start: movedStart,
         end: subtitle.traceback.item.samples['@end']
       });
   
     } else {
       for (const word of subtitle.traceback.item) {
         if(word['@type'] !== "punctuation") {
+          const movedStart = `${(parseFloat(word.samples['@start']) + 0.001).toFixed(3)}`;
           data = data.push({
             confidence: word.confidence,
             type: word['@type'],
             orth: word.orth,
-            start: word.samples['@start'],
-            end: word.samples['@end']
-          });
-
-          timecodes.push({
-            start: word.samples['@start'],
+            start: movedStart,
             end: word.samples['@end']
           });
         } else {
@@ -44,11 +35,12 @@ function getData() {
       }
     }
   }
-  return {data, timecodes};
+  return data;
 }
 
 export function divideDataToSubtitles(data) {
   let dividedData = [];
+  let timecodes = [];
   const maxLineLength = 42;
   let currentLineLength = data.get(0).orth.length + 1;
   let isNewSubtitle = false;
@@ -82,10 +74,15 @@ export function divideDataToSubtitles(data) {
         end: word.end
       });
 
+      timecodes.push({
+        start: word.start,
+        end: word.end
+      });
+
       if (isNewSubtitle && isLineBreak) {
         dividedData.push({
           orth: "\n",
-          start: index,
+          start: word.end,
         });
 
         isLineBreak = false;
@@ -93,7 +90,7 @@ export function divideDataToSubtitles(data) {
       } else if (isLineBreak) {
         dividedData.push({
           orth: "",
-          start: index,
+          start: word.end,
         });
 
         isLineBreak = false;
@@ -101,9 +98,14 @@ export function divideDataToSubtitles(data) {
       } else {
         dividedData.push({
           orth: " ",
-          start: index,
+          start: word.end,
         });
       }
+
+      timecodes.push({
+        start: word.end,
+        end: word.end
+      });
 
     } else {
       dividedData.push({
@@ -114,7 +116,7 @@ export function divideDataToSubtitles(data) {
       });
     }
   }
-  return dividedData;
+  return { dividedData, timecodes };
 }
 
 export default getData;

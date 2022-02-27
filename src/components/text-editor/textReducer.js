@@ -1,12 +1,12 @@
 import getData, { divideDataToSubtitles } from './prepareTextFromJSON';
 
 const initialData = getData();
-const subtitles = divideDataToSubtitles(initialData.data);
-const rawContentData = getRawContentFromData(subtitles);
+const subtitles = divideDataToSubtitles(initialData);
+const rawContentData = getRawContentFromData(subtitles.dividedData);
 
 const initialState = {
   rawContentData: rawContentData,
-  timecodes: initialData.timecodes
+  timecodes: subtitles.timecodes
 };
 
 const textReducer = (state = initialState, action) => {

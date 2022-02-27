@@ -16,8 +16,6 @@ import "../../../node_modules/video-react/dist/video-react.css";
 
 import { updateCurrentTime, wordClicked } from "./mediaActions";
 
-const compensationTime = 0.1;
-
 class MediaCard extends Component {
   
   componentDidMount() {
@@ -30,18 +28,24 @@ class MediaCard extends Component {
   dispatchCurrentTime = () => {
     // update currentTime of the global state from player state
     const { player } = this.player.getState();
-    const currentTimeCompensated = player.currentTime + compensationTime;
     let currentWord;
 
     for (let word of this.props.timecodes) {
-      if((currentTimeCompensated >= parseFloat(word.start)) && (currentTimeCompensated < parseFloat(word.end))) {
+      const start = parseFloat(word.start);
+      const end = parseFloat(word.end);
+
+      if (((player.currentTime >= start) && 
+         (player.currentTime < end)) ||
+         (word.start === this.props.wordClickedTime)) {
+
         currentWord = word.start;
+        this.props.wordClicked(false);
         break;
-      }
+      } 
     }
 
     if (currentWord && (currentWord !== this.props.currentTime)) {
-      this.props.updateCurrentTime(currentWord);
+      this.props.updateCurrentTime(currentWord); 
     }
   }
 
@@ -56,9 +60,8 @@ class MediaCard extends Component {
       return false;
     }
 
-    if (nextProps.wordClickedTime !== this.props.wordClickedTime) {
+    if (nextProps.wordClickedTime) {
       this.player.seek(parseFloat(nextProps.wordClickedTime));
-      // this.props.wordClicked(false);
       return false;
     }
 
