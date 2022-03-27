@@ -1,18 +1,10 @@
-import { textUpdatedType, wordsJoinedType } from "./textReducer";
+import { TEXT_UPDATED } from "./textReducer";
 
 export function textUpdated(rawContentData) {
   return {
-    type: textUpdatedType,
+    type: TEXT_UPDATED,
     payload: rawContentData
   }
 }
 
-export function wordsJoined(firstWordKey, secondWordKey) {
-  return {
-    type: wordsJoinedType,
-    payload: {
-      firstWordKey: firstWordKey,
-      secondWordKey: secondWordKey
-    }
-  }
-}
+

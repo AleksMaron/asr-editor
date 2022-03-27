@@ -2,34 +2,35 @@ const initialState = {
   source: "https://ooona-public.s3.amazonaws.com/video/Amyloidosis%20Awareness.MP4",
   currentTime: 0,
   wordClickedTime: false,
-  playOrPause: false
+  isPlaying: false,
+  frameRate: 25
 };
 
 const mediaReducer = (state = initialState, action) => {
   switch(action.type) {
-    case updateCurrentTimeType:
+    case UPDATE_CURRENT_TIME:
       return {
         ...state,
         currentTime: action.payload
       };
-    case wordClickedType:
+    case WORD_CLICKED:
       return {
         ...state,
         wordClickedTime: action.payload
       };
-    case playOrPauseType:
+    case TOGGLE_PLAY:
       return {
         ...state,
-        playOrPause: state.playOrPause ? false : true 
+        isPlaying: state.isPlaying ? false : true 
       }
     default:
       return state;
   }
 }
 
-export const updateCurrentTimeType = "UPDATE_CURRENT_TIME";
-export const wordClickedType = "WORD_CLICKED";
-export const playOrPauseType = "PLAY_OR_PAUSE";
+export const UPDATE_CURRENT_TIME = "UPDATE_CURRENT_TIME";
+export const WORD_CLICKED = "WORD_CLICKED";
+export const TOGGLE_PLAY = "TOGGLE_PLAY";
 export default mediaReducer;
 
 

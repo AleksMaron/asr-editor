@@ -7,8 +7,9 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import DenseAppBar from './components/DenseAppBar';
 import MediaCard from './components/media-card/MediaCard';
 import TextEditor from './components/text-editor/TextEditor';
+import { connect } from 'react-redux';
 
-function App() {
+function App(props) {
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
 
   const theme = React.useMemo(
@@ -20,21 +21,43 @@ function App() {
       }),
     [prefersDarkMode],
   );
-
-  return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <DenseAppBar />
-      <Grid container>
-        <Grid item xs={5}> 
-          <MediaCard />
+  
+  if (props.content) {
+    return (
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <DenseAppBar />
+        <Grid container>
+          <Grid item xs={5}> 
+            <MediaCard />
+          </Grid>
+          <Grid item xs={7}>
+            <TextEditor />
+          </Grid>
         </Grid>
-        <Grid item xs={7}>
-          <TextEditor />
+      </ThemeProvider>
+    );
+  } else {
+    return (
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <DenseAppBar />
+        <Grid container>
+          <Grid item xs={5}> 
+            <MediaCard />
+          </Grid>
+          <Grid item xs={7}>
+          </Grid>
         </Grid>
-      </Grid>
-    </ThemeProvider>
-  );
+      </ThemeProvider>
+    );
+  }
+  
 }
 
-export default App;
+function mapStateToProps(state) {
+  return {
+    content: state.text.rawContentData
+  }
+}
+export default connect(mapStateToProps)(App);

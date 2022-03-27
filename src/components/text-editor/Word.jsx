@@ -1,4 +1,7 @@
 import React from "react";
+import Tooltip from '@mui/material/Tooltip';
+import convertToSMPTE from "../convertToSMPTE";
+import { connect } from "react-redux";
 
 function getStyle(confidence) {
   const confNumber = parseFloat(confidence);
@@ -21,22 +24,31 @@ function Word(props) {
   const block  = props.contentState.getBlockForKey(props.blockKey);
   const data = block.getData();
   const confidence = data.get("confidence");
-  
+  const startSMPTE = convertToSMPTE(parseFloat(data.get("start")), props.frameRate);
+  const endSMPTE = convertToSMPTE(parseFloat(data.get("end")), props.frameRate);
+  const dataString = startSMPTE + " | " + (confidence ? confidence : "1.0") + " | " + endSMPTE;
   if (confidence) {
-    let style = getStyle(confidence);
-
     return(
-      <span style={style}>
-        {props.children}
-      </span>
+      <Tooltip title={dataString} placement="top" arrow style={{fontWeight: "bold", backgroundColor: "red"}}>
+        <span style={getStyle(confidence)}>
+          {props.children}
+        </span>
+      </Tooltip>
     );
   }
 
   return(
-    <span>
+    <span style={getStyle("1.0")}>
       {props.children}
     </span>
   );
 }
 
-export default Word;
+function mapStateToProps(state) {
+  return {
+    frameRate: state.media.frameRate
+  };
+}
+
+export default connect(mapStateToProps)(Word);
+

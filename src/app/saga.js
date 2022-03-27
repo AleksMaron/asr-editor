@@ -1,12 +1,14 @@
-import { textUpdatedType, textUpdatedAsyncType } from "../components/text-editor/textReducer";
-import {put, delay, takeLatest} from 'redux-saga/effects';
+import { TEXT_UPDATED, TEXT_UPDATED_ASYNC } from "../components/text-editor/textReducer";
+import {put, takeLatest} from 'redux-saga/effects';
+import { saveState } from "./loadState";
+import store from "./store";
 
 function* textChangedAsync(action) {
-  yield delay(2000);
-  yield put({type: textUpdatedAsyncType, payload: action.payload});
+  yield put({type: TEXT_UPDATED_ASYNC, payload: action.payload});
+  yield saveState(store.getState());
 }
 
 
 export function* watchTextUpdated() {
-  yield takeLatest(textUpdatedType, textChangedAsync);
+  yield takeLatest(TEXT_UPDATED, textChangedAsync);
 }

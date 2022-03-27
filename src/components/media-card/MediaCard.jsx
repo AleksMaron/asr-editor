@@ -13,6 +13,7 @@ import {
     BigPlayButton
   } from 'video-react';
 import "../../../node_modules/video-react/dist/video-react.css";
+import "./MediaCard.css";
 
 import { updateCurrentTime, wordClicked } from "./mediaActions";
 
@@ -26,32 +27,16 @@ class MediaCard extends Component {
   }
 
   dispatchCurrentTime = () => {
-    // update currentTime of the global state from player state
     const { player } = this.player.getState();
-    let currentWord;
-
-    for (let word of this.props.timecodes) {
-      const start = parseFloat(word.start);
-      const end = parseFloat(word.end);
-
-      if (((player.currentTime >= start) && 
-         (player.currentTime < end)) ||
-         (word.start === this.props.wordClickedTime)) {
-
-        currentWord = word.start;
-        this.props.wordClicked(false);
-        break;
-      } 
-    }
-
-    if (currentWord && (currentWord !== this.props.currentTime)) {
-      this.props.updateCurrentTime(currentWord); 
+  
+    if (player.currentTime !== this.props.currentTime) {
+      this.props.updateCurrentTime(player.currentTime); 
     }
   }
 
   shouldComponentUpdate(nextProps) {
-    if (nextProps.playOrPause !== this.props.playOrPause) {
-      if (nextProps.playOrPause) {
+    if (nextProps.isPlaying !== this.props.isPlaying) {
+      if (nextProps.isPlaying) {
         this.player.actions.play();
       } else {
         this.player.actions.pause();
@@ -62,6 +47,7 @@ class MediaCard extends Component {
 
     if (nextProps.wordClickedTime) {
       this.player.seek(parseFloat(nextProps.wordClickedTime));
+      this.props.wordClicked(false);
       return false;
     }
 
@@ -70,7 +56,8 @@ class MediaCard extends Component {
 
   render() {
     return(
-      <Player       
+      <Player
+      className="mediaCard"       
       ref={player => {this.player = player}}
       src={this.props.source}
       >
@@ -94,8 +81,7 @@ function mapStateToProps(state) {
     source: state.media.source,
     currentTime: state.media.currentTime,
     wordClickedTime: state.media.wordClickedTime,
-    timecodes: state.text.timecodes,
-    playOrPause: state.media.playOrPause
+    isPlaying: state.media.isPlaying
   };
 }
 

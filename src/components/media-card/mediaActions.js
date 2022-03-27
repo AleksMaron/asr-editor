@@ -1,21 +1,21 @@
-import { updateCurrentTimeType, wordClickedType, playOrPauseType } from "./mediaReducer";
+import { UPDATE_CURRENT_TIME, WORD_CLICKED, TOGGLE_PLAY } from "./mediaReducer";
 
 export function updateCurrentTime(currentTime) {
   return {
-    type: updateCurrentTimeType,
+    type: UPDATE_CURRENT_TIME,
     payload: currentTime
   }
 }
 
 export function wordClicked(wordClickedTime) {
   return {
-    type: wordClickedType,
+    type: WORD_CLICKED,
     payload: wordClickedTime
   }
 }
 
-export function playOrPause() {
+export function togglePlay() {
   return {
-    type: playOrPauseType,
+    type: TOGGLE_PLAY,
   }
 }
