@@ -1,4 +1,4 @@
-import { TEXT_UPDATED } from "./textReducer";
+import { TEXT_UPDATED, FILE_UPLOADED, TOGGLE_SAVE } from './textReducer';
 
 export function textUpdated(rawContentData) {
   return {
@@ -7,4 +7,16 @@ export function textUpdated(rawContentData) {
   }
 }
 
+export function uploadTextFromFile(text) {
+  return {
+    type: FILE_UPLOADED,
+    payload: text
+  }
+}
+
+export function toggleSave() {
+  return {
+    type: TOGGLE_SAVE
+  }
+}
 

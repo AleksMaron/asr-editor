@@ -1,5 +1,5 @@
-import React, { Component } from "react";
-import { connect } from "react-redux";
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 
 import {
     Player,
@@ -12,10 +12,10 @@ import {
     VolumeMenuButton,
     BigPlayButton
   } from 'video-react';
-import "../../../node_modules/video-react/dist/video-react.css";
-import "./MediaCard.css";
+import '../../../node_modules/video-react/dist/video-react.css';
+import './MediaCard.css';
 
-import { updateCurrentTime, wordClicked } from "./mediaActions";
+import { updateCurrentTime, wordClicked } from './mediaActions';
 
 class MediaCard extends Component {
   
@@ -57,11 +57,11 @@ class MediaCard extends Component {
   render() {
     return(
       <Player
-      className="mediaCard"       
+      className='mediaCard'       
       ref={player => {this.player = player}}
       src={this.props.source}
       >
-        <BigPlayButton position="center" />
+        <BigPlayButton position='center' />
         <ControlBar>
           <ReplayControl seconds={10} order={1.1} />
           <ForwardControl seconds={30} order={1.2} />

@@ -1,4 +1,4 @@
-import { UPDATE_CURRENT_TIME, WORD_CLICKED, TOGGLE_PLAY } from "./mediaReducer";
+import { UPDATE_CURRENT_TIME, WORD_CLICKED, TOGGLE_PLAY } from './mediaReducer';
 
 export function updateCurrentTime(currentTime) {
   return {

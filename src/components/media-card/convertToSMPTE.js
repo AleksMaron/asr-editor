@@ -9,8 +9,8 @@ export default function convertToSMPTE(timecode, frameRate) {
     const minutesString = minutes.toLocaleString(undefined, {minimumIntegerDigits: 2});
     const secondsString = seconds.toLocaleString(undefined, {minimumIntegerDigits: 2});
     const framesString = frames.toLocaleString(undefined, {minimumIntegerDigits: 2});
-    return hoursString + ":" + minutesString + ":" + secondsString + ":" + framesString;
+    return hoursString + ':' + minutesString + ':' + secondsString + ':' + framesString;
   } else {
-    return "00:00:00:00";
+    return '00:00:00:00';
   }
 } 

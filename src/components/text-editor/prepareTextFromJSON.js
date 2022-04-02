@@ -9,7 +9,7 @@ function getData(JSONstring) {
     const EPS = 0.001;
     let words = Array.isArray(subtitle.traceback.item) ? subtitle.traceback.item : [subtitle.traceback.item];
     for (const word of words) {
-      if(word['@type'] !== "punctuation") {
+      if(word['@type'] !== 'punctuation') {
         const movedStart = `${(parseFloat(word.samples['@start']) + EPS).toFixed(3)}`;
         const movedEnd = `${(parseFloat(word.samples['@end']) - EPS).toFixed(3)}`;
         data = data.push({
@@ -39,10 +39,10 @@ function divideDataToSubtitles(data) {
   let isLineBreak = false;
   
   for (const [index, word] of data.entries()) {
-    if (word.type === "punctuation") {
+    if (word.type === 'punctuation') {
       const next = data.get(index + 1);
         if (next) {
-          if (word.orth === ",") {
+          if (word.orth === ',') {
             currentLineLength += next.orth.length + 1;
           } else {
             currentLineLength = next.orth.length + 1;
@@ -54,7 +54,7 @@ function divideDataToSubtitles(data) {
     const next = data.get(index + 1);
 
     if (next) {
-      if (next.type !== "punctuation") {
+      if (next.type !== 'punctuation') {
         if ((next.orth.length + currentLineLength + 1) <= maxLineLength) {
           currentLineLength += next.orth.length + 1;
           wordsCount++;
@@ -65,7 +65,7 @@ function divideDataToSubtitles(data) {
         }
       } else {
         word.orth = word.orth + next.orth;
-        if ((wordsCount < 3) && (next.orth === ",")) {
+        if ((wordsCount < 3) && (next.orth === ',')) {
           currentLineLength += next.orth.length + 1;
           wordsCount++;
         } else {
@@ -84,7 +84,7 @@ function divideDataToSubtitles(data) {
 
       if (isNewSubtitle && isLineBreak) {
         dividedData.push({
-          orth: "\n",
+          orth: '\n',
           start: word.end,
           end: word.end
         });
@@ -93,7 +93,7 @@ function divideDataToSubtitles(data) {
         isNewSubtitle = false;
       } else if (isLineBreak) {
         dividedData.push({
-          orth: "",
+          orth: '',
           start: word.end,
           end: word.end
         });
@@ -102,7 +102,7 @@ function divideDataToSubtitles(data) {
         isNewSubtitle = true;
       } else {
         dividedData.push({
-          orth: " ",
+          orth: ' ',
           start: word.end,
           end: word.end
         });

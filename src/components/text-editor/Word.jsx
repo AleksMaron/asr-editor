@@ -1,21 +1,21 @@
-import React from "react";
+import React from 'react';
 import Tooltip from '@mui/material/Tooltip';
-import convertToSMPTE from "../convertToSMPTE";
-import { connect } from "react-redux";
+import convertToSMPTE from '../media-card/convertToSMPTE';
+import { connect } from 'react-redux';
 
 function getStyle(confidence) {
   const confNumber = parseFloat(confidence);
   if (confNumber >= 0.9) {
     return {
-      color: "#7FFF00",
+      color: '#7FFF00',
     };
   } else if (confNumber < 0.9 && confNumber >= 0.7) {
     return {
-      color: "orange",
+      color: 'orange',
     };
   } else {
     return {
-      color: "red",
+      color: 'red',
     };
   }
 }
@@ -23,13 +23,13 @@ function getStyle(confidence) {
 function Word(props) {
   const block  = props.contentState.getBlockForKey(props.blockKey);
   const data = block.getData();
-  const confidence = data.get("confidence");
-  const startSMPTE = convertToSMPTE(parseFloat(data.get("start")), props.frameRate);
-  const endSMPTE = convertToSMPTE(parseFloat(data.get("end")), props.frameRate);
-  const dataString = startSMPTE + " | " + (confidence ? confidence : "1.0") + " | " + endSMPTE;
+  const confidence = data.get('confidence');
+  const startSMPTE = convertToSMPTE(parseFloat(data.get('start')), props.frameRate);
+  const endSMPTE = convertToSMPTE(parseFloat(data.get('end')), props.frameRate);
+  const dataString = startSMPTE + ' | ' + (confidence ? confidence : '1.0') + ' | ' + endSMPTE;
   if (confidence) {
     return(
-      <Tooltip title={dataString} placement="top" arrow style={{fontWeight: "bold", backgroundColor: "red"}}>
+      <Tooltip title={dataString} placement='top' arrow style={{fontWeight: 'bold', backgroundColor: 'red'}}>
         <span style={getStyle(confidence)}>
           {props.children}
         </span>
@@ -38,7 +38,7 @@ function Word(props) {
   }
 
   return(
-    <span style={getStyle("1.0")}>
+    <span style={getStyle('1.0')}>
       {props.children}
     </span>
   );

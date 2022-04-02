@@ -1,11 +1,11 @@
-import { configureStore } from "@reduxjs/toolkit";
+import { configureStore } from '@reduxjs/toolkit';
 
-import mediaReducer from "../components/media-card/mediaReducer";
-import textReducer from "../components/text-editor/textReducer";
-import { loadState } from "./loadState";
-import createSagaMiddleware from "@redux-saga/core";
+import mediaReducer from '../components/media-card/mediaReducer';
+import textReducer from '../components/text-editor/textReducer';
+import { loadState } from './loadState';
+import createSagaMiddleware from '@redux-saga/core';
 
-import { watchTextUpdated } from "./saga";
+import { watchTextUpdated } from './saga';
 
 const sagaMiddleware = createSagaMiddleware();
 

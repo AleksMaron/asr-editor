@@ -4,7 +4,7 @@ import Grid from '@material-ui/core/Grid'
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
-import DenseAppBar from './components/DenseAppBar';
+import TopBar from './components/top-bar/TopBar';
 import MediaCard from './components/media-card/MediaCard';
 import TextEditor from './components/text-editor/TextEditor';
 import { connect } from 'react-redux';
@@ -22,11 +22,11 @@ function App(props) {
     [prefersDarkMode],
   );
   
-  if (props.content) {
+  if (props.content || props.isFileUploaded) {
     return (
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <DenseAppBar />
+        <TopBar />
         <Grid container>
           <Grid item xs={5}> 
             <MediaCard />
@@ -41,7 +41,7 @@ function App(props) {
     return (
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <DenseAppBar />
+        <TopBar />
         <Grid container>
           <Grid item xs={5}> 
             <MediaCard />
@@ -57,7 +57,8 @@ function App(props) {
 
 function mapStateToProps(state) {
   return {
-    content: state.text.rawContentData
+    content: state.text.rawContentData,
+    isFileUploaded: state.text.isFileUploaded
   }
 }
 export default connect(mapStateToProps)(App);

@@ -1,18 +1,18 @@
-import { EditorState, Modifier, SelectionState } from "draft-js";
-import { mergeBlocksData } from "./handleBackspace";
-import { getSelectedBlocksList } from "draftjs-utils";
-import { getKeyAfter } from "../getKeysBinary";
+import { EditorState, Modifier, SelectionState } from 'draft-js';
+import { mergeBlocksData } from './handleBackspace';
+import { getSelectedBlocksList } from 'draftjs-utils';
+import { getKeyAfter } from '../getKeysBinary';
 
 export default function handleTextInput(chars, editorState) {
   const currentContent = editorState.getCurrentContent();
   const currentSelection = editorState.getSelection();
   const currentBlockKey = currentSelection.getAnchorKey();
   const currentText = currentContent.getBlockForKey(currentBlockKey).getText();
-  if (currentText === "\n") {
+  if (currentText === '\n') {
     return editorState;
   }
   
-  if (currentText === " ") {
+  if (currentText === ' ') {
     const nextBlockKey = getKeyAfter(currentContent, currentBlockKey);
     if (nextBlockKey) {
       const newSelection = new SelectionState({
@@ -31,7 +31,7 @@ export default function handleTextInput(chars, editorState) {
     const selectedBlockList = getSelectedBlocksList(editorState);
     //Block backspace for cross-subtitle selection
     for (const [index, block] of selectedBlockList.entries()) {
-      if ((block.getText() === "\n") && (index !== (selectedBlockList.size - 1))) {
+      if ((block.getText() === '\n') && (index !== (selectedBlockList.size - 1))) {
         return editorState;
       }
     }

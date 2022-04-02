@@ -1,16 +1,16 @@
-import React, { Component } from "react";
-import { connect } from "react-redux";
-import convertToSMPTE from "./convertToSMPTE";
-import "./WordInfo.css"
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import convertToSMPTE from '../media-card/convertToSMPTE';
+import './WordInfo.css'
 
 function getConfidenceColor(confidence) {
   const confNumber = parseFloat(confidence);
   if (confNumber >= 0.9) {
-    return "#7FFF00";
+    return '#7FFF00';
   } else if (confNumber < 0.9 && confNumber >= 0.7) {
-    return "orange";
+    return 'orange';
   } else {
-    return "red";
+    return 'red';
   }
 }
 
@@ -59,7 +59,7 @@ class WordInfo extends Component {
 
 
   render() {
-    if (this.state.coordinates.left && this.state.coordinates.top) {
+    if (this.state.coordinates.left && this.state.coordinates.top && !this.props.isScrolling) {
       const currentContent = this.props.editorState.getCurrentContent();
       const currentBlockKey = this.props.editorState.getSelection().getStartKey();
       const wordData = currentContent.getBlockForKey(currentBlockKey).getData();
@@ -67,7 +67,7 @@ class WordInfo extends Component {
       const confidence = wordData.get('confidence');
       const startSMPTE = convertToSMPTE(parseFloat(wordData.get('start')), this.props.frameRate);
       const endSMPTE = convertToSMPTE(parseFloat(wordData.get('end')), this.props.frameRate);
-      const confidenceColor = confidence ? getConfidenceColor(confidence) : "#7FFF00";
+      const confidenceColor = confidence ? getConfidenceColor(confidence) : '#7FFF00';
      
       return (
         <div 
@@ -86,7 +86,7 @@ class WordInfo extends Component {
           }}
         >
           <span>{startSMPTE}</span>&nbsp;| 
-          <span>&nbsp;{confidence ? confidence : "1.0"}</span>&nbsp;| 
+          <span>&nbsp;{confidence ? confidence : '1.0'}</span>&nbsp;| 
           <span>&nbsp;{endSMPTE}</span>
         </div>
       );

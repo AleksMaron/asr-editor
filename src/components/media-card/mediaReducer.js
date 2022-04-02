@@ -1,5 +1,5 @@
 const initialState = {
-  source: "https://ooona-public.s3.amazonaws.com/video/Amyloidosis%20Awareness.MP4",
+  source: 'https://ooona-public.s3.amazonaws.com/video/Amyloidosis%20Awareness.MP4',
   currentTime: 0,
   wordClickedTime: false,
   isPlaying: false,
@@ -28,9 +28,9 @@ const mediaReducer = (state = initialState, action) => {
   }
 }
 
-export const UPDATE_CURRENT_TIME = "UPDATE_CURRENT_TIME";
-export const WORD_CLICKED = "WORD_CLICKED";
-export const TOGGLE_PLAY = "TOGGLE_PLAY";
+export const UPDATE_CURRENT_TIME = 'UPDATE_CURRENT_TIME';
+export const WORD_CLICKED = 'WORD_CLICKED';
+export const TOGGLE_PLAY = 'TOGGLE_PLAY';
 export default mediaReducer;
 
 
